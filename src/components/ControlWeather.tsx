@@ -12,14 +12,19 @@ import FormControl from '@mui/material/FormControl';
 
 {/* Interfaz SelectChangeEvent */}
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+
+interface ControlWeatherProps {
+    onChange: (selectedIndex: number) => void;
+  }
+  
    
-export default function ControlWeather() {
+export default function ControlWeather({ onChange }: ControlWeatherProps) {
 
      {/* Constante de referencia a un elemento HTML */ }
      const descriptionRef = useRef<HTMLDivElement>(null);
 
     {/* Variable de estado y función de actualización */}
-    let [selected, setSelected] = useState(-1)
+    let [, setSelected] = useState(-1)
 
     {/* Arreglo de objetos */}
     let items = [
@@ -32,11 +37,12 @@ export default function ControlWeather() {
     let options = items.map( (item, key) => <MenuItem key={key} value={key}>{item["name"]}</MenuItem> )
 
      {/* Manejador de eventos */}
-     const handleChange = (event: SelectChangeEvent) => {
+    const handleChange = (event: SelectChangeEvent) => {
 
         let idx = parseInt(event.target.value)
         // alert( idx );
         setSelected( idx );
+        onChange(idx);
 
         {/* Modificación de la referencia descriptionRef */}
         if (descriptionRef.current !== null) {

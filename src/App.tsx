@@ -21,7 +21,8 @@ function App() {
 
   {/* Variable de estado y función de actualización */}
   let [indicators, setIndicators] = useState<Indicator[]>([])
-  let [items, setItems] = useState<Indicator[]>([])
+  let [items, setItems] = useState<Item[]>([])
+  let [selectedVariable, setSelectedVariable] = useState<number>(-1);
 
   {/* Hook: useEffect */}
   useEffect( ()=>{
@@ -63,11 +64,34 @@ function App() {
       {/* Modificación de la variable de estado mediante la función de actualización */}
       setIndicators( dataToIndicators )
 
-      let dataToItems : Item[] = new Array<Item>();
+      let dataToItems = new Array<Item>();
 
-      let time = xml.getElementsByTagName("time")
+      let time = xml.getElementsByTagName("time");
 
+      for (let i = 0; i < time.length && i < 10; i++) {
+        const times = time[i];
+        const from = times.getAttribute('from');
+        const to = times.getAttribute('to');
+        const precip = times.getElementsByTagName('precipitation')[0]?.getAttribute('probability') || '0';
+        const temp = times.getElementsByTagName('temperature')[0]?.getAttribute('value') || '0';
+        const hum = times.getElementsByTagName('humidity')[0]?.getAttribute('value') || '0';
+        const cloud = times.getElementsByTagName('clouds')[0]?.getAttribute('all') || '0';
 
+        const valorPrec = Number(precip) * 100;
+        const precipit = valorPrec.toString() || '0';
+        const temperatura = ((Number(temp) - 273.15).toFixed(2)).toString();
+
+        dataToItems.push({"dateStart":from || "", 
+          "dateEnd":to || "", 
+          "precipitation":precipit || "", 
+          "temperatura":temperatura || "",
+          "humidity": hum || "", 
+          "clouds": cloud || ""
+        });
+      }
+
+      setItems(dataToItems)
+      
     }
 
     request();
@@ -90,6 +114,11 @@ function App() {
      
   }
 
+  const handleVariableChange = (selectedIndex: number) => {
+    setSelectedVariable(selectedIndex);
+  }
+
+
   return (
     <Grid container spacing={5}>
 
@@ -100,25 +129,31 @@ function App() {
       <Grid size={{ xs: 12, xl: 3 }}><IndicatorWeather title={'Indicator 4'} subtitle={'Unidad 4'} value={"3.21"}/></Grid>*/}
 
       {renderIndicators()}
-
+      
       {/* Tabla */}
+      <Grid size={{ xs: 12, xl: 9 }}>
+          <TableWeather itemsIn={ items } />
+          </Grid>
+
+      
       <Grid size={{ xs: 12, xl: 8 }}>
         {/* Grid Anidado */}
         <Grid container spacing={2}>
-                     <Grid size={{ xs: 12, xl: 3 }}>
-                         <ControlWeather/>
-                     </Grid>
-                     <Grid size={{ xs: 12, xl: 9 }}>
-                         <TableWeather/>
-                     </Grid>
-                 </Grid>
+          <Grid size={{ xs: 12, xl: 12 }}>
+              <ControlWeather onChange={handleVariableChange}/>
+          </Grid>
+          {/* Gráfico */}
+          <Grid size={{ xs: 12, xl: 12 }}>
+            <LineChartWeather content= {items} selectedVariable={selectedVariable}/>
+          </Grid>
+          
+        </Grid>
+        
       </Grid>
-
-      {/* Gráfico */}
-      <Grid size={{ xs: 12, xl: 4 }}><LineChartWeather/></Grid>
 		  
     </Grid>
   )
 }
 
 export default App
+
