@@ -54,8 +54,8 @@ interface Information {
 
              {/* Componente para un gráfico de líneas */}
              <LineChart
-                 width={800}
-                 height={350}
+                 width={1250}
+                 height={400}
                  series={[{ data: data, label: 'Value' }]}
                  xAxis={[{ scaleType: 'point', data: labels }]}
              />

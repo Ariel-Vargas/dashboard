@@ -22,6 +22,7 @@ function App() {
   {/* Variable de estado y función de actualización */}
   let [indicators, setIndicators] = useState<Indicator[]>([])
   let [items, setItems] = useState<Item[]>([])
+  let [charts, setCharts] = useState<Item[]>([])
   let [selectedVariable, setSelectedVariable] = useState<number>(-1);
 
   {/* Hook: useEffect */}
@@ -75,7 +76,7 @@ function App() {
         const precip = times.getElementsByTagName('precipitation')[0]?.getAttribute('probability') || '0';
         const temp = times.getElementsByTagName('temperature')[0]?.getAttribute('value') || '0';
         const hum = times.getElementsByTagName('humidity')[0]?.getAttribute('value') || '0';
-        const cloud = times.getElementsByTagName('clouds')[0]?.getAttribute('all') || '0';
+        const cloud = times.getElementsByTagName('clouds')[0]?.getAttribute('value') || '0';
 
         const valorPrec = Number(precip) * 100;
         const precipit = valorPrec.toString() || '0';
@@ -91,6 +92,32 @@ function App() {
       }
 
       setItems(dataToItems)
+
+      let chartsToItem = new Array<Item>();
+
+      for (let i = 0; i < time.length && i < 10; i++) {
+        const times = time[i];
+        const from = times.getAttribute('from');
+        const to = times.getAttribute('to');
+        const precip = times.getElementsByTagName('precipitation')[0]?.getAttribute('probability') || '0';
+        const temp = times.getElementsByTagName('temperature')[0]?.getAttribute('value') || '0';
+        const hum = times.getElementsByTagName('humidity')[0]?.getAttribute('value') || '0';
+        const cloud = times.getElementsByTagName('clouds')[0]?.getAttribute('all') || '0';
+
+        const valorPrec = Number(precip) * 100;
+        const precipit = valorPrec.toString() || '0';
+        const temperatura = ((Number(temp) - 273.15).toFixed(2)).toString();
+
+        chartsToItem.push({"dateStart":from || "", 
+          "dateEnd":to || "", 
+          "precipitation":precipit || "", 
+          "temperatura":temperatura || "",
+          "humidity": hum || "", 
+          "clouds": cloud || ""
+        });
+      }
+
+      setCharts(chartsToItem)
       
     }
 
@@ -131,12 +158,12 @@ function App() {
       {renderIndicators()}
       
       {/* Tabla */}
-      <Grid size={{ xs: 12, xl: 9 }}>
+      <Grid size={{ xs: 12, xl: 12}}>
           <TableWeather itemsIn={ items } />
           </Grid>
 
       
-      <Grid size={{ xs: 12, xl: 8 }}>
+      <Grid size={{ xs: 12, xl: 12 }}>
         {/* Grid Anidado */}
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, xl: 12 }}>
@@ -144,7 +171,7 @@ function App() {
           </Grid>
           {/* Gráfico */}
           <Grid size={{ xs: 12, xl: 12 }}>
-            <LineChartWeather content= {items} selectedVariable={selectedVariable}/>
+            <LineChartWeather content= {charts} selectedVariable={selectedVariable}/>
           </Grid>
           
         </Grid>
